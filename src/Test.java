@@ -1,24 +1,19 @@
-import propertyReader.PropertyReader;
-
 import java.io.*;
-import java.nio.file.Path;
 import java.util.concurrent.*;
 
-import static propertyReader.PropertyReader.*;
 
 
 public class Test {
 
     private void exec() {
-        Test test = new Test();
-        File inputFolder = new File(INPUT_DIRECTORY);
+        File inputFolder = new File(PropertyReader.INPUT_DIRECTORY);
         File[] listOfFiles = inputFolder.listFiles();
         if (listOfFiles != null)
             for (File file : listOfFiles){
                 String fileName = file.getName();
                 try(FileInputStream fileInputStream = new FileInputStream(file);
-                    FileOutputStream fileOutputStream = new FileOutputStream(new File(OUTPUT_DIRECTORY + "/" +fileName))){
-                    test.copy(fileInputStream, fileOutputStream);
+                    FileOutputStream fileOutputStream = new FileOutputStream(PropertyReader.OUTPUT_DIRECTORY + "/" +fileName)){
+                    copy(fileInputStream, fileOutputStream);
                 } catch (IOException e){
                     System.out.println(e);
                 }
@@ -28,7 +23,7 @@ public class Test {
 
     private void start() {
         ScheduledExecutorService s = Executors.newSingleThreadScheduledExecutor();
-        s.scheduleAtFixedRate(this::exec, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);
+        s.scheduleAtFixedRate(this::exec, PropertyReader.INITIAL_DELAY, PropertyReader.PERIOD, TimeUnit.SECONDS);
     }
 
     private void copy(InputStream source, OutputStream target) throws IOException {
@@ -40,7 +35,11 @@ public class Test {
     }
 
     public static void main(String[] args) {
-        new PropertyReader();
+        try {
+            PropertyReader.loadProperties();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         new Test().start();
     }
 }
