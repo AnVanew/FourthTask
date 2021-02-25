@@ -1,13 +1,13 @@
 import propertyReader.PropertyReader;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.concurrent.*;
 
 import static propertyReader.PropertyReader.*;
 
 
 public class Test {
-
 
     private void exec() {
         Test test = new Test();
@@ -25,6 +25,7 @@ public class Test {
                 file.delete();
             }
     }
+
     private void start() {
         ScheduledExecutorService s = Executors.newSingleThreadScheduledExecutor();
         s.scheduleAtFixedRate(this::exec, INITIAL_DELAY, PERIOD, TimeUnit.SECONDS);
