@@ -16,16 +16,20 @@ public class Test {
             listOfFiles = Files.walk(PropertyReader.INPUT_DIRECTORY).filter(Files::isRegularFile).map(Path::toFile).collect(Collectors.toList());
             if (listOfFiles.size() != 0)
                 for (File file : listOfFiles){
-                    String fileName = file.getName();
-                    try(FileInputStream fileInputStream = new FileInputStream(PropertyReader.INPUT_DIRECTORY + "/" + fileName);
-                        FileOutputStream fileOutputStream = new FileOutputStream(PropertyReader.OUTPUT_DIRECTORY + "/" +fileName)){
-                        copy(fileInputStream, fileOutputStream);
-                    }
-                    file.delete();
+                   copyAndDeleteFile(file);
                 }
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void copyAndDeleteFile (File file) throws IOException {
+        String fileName = file.getName();
+        try(FileInputStream fileInputStream = new FileInputStream(PropertyReader.INPUT_DIRECTORY + "/" + fileName);
+            FileOutputStream fileOutputStream = new FileOutputStream(PropertyReader.OUTPUT_DIRECTORY + "/" +fileName)){
+            copy(fileInputStream, fileOutputStream);
+        }
+        file.delete();
     }
 
     private void start() {
