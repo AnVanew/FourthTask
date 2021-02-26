@@ -11,23 +11,21 @@ import java.util.stream.Stream;
 public class Test {
 
     private void exec()  {
-        List<File> listOfFiles = null;
         try {
+            List<File> listOfFiles = null;
             listOfFiles = Files.walk(PropertyReader.INPUT_DIRECTORY).filter(Files::isRegularFile).map(Path::toFile).collect(Collectors.toList());
+            if (listOfFiles.size() != 0)
+                for (File file : listOfFiles){
+                    String fileName = file.getName();
+                    try(FileInputStream fileInputStream = new FileInputStream(PropertyReader.INPUT_DIRECTORY + "/" + fileName);
+                        FileOutputStream fileOutputStream = new FileOutputStream(PropertyReader.OUTPUT_DIRECTORY + "/" +fileName)){
+                        copy(fileInputStream, fileOutputStream);
+                    }
+                    file.delete();
+                }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (listOfFiles.size() != 0)
-            for (File file : listOfFiles){
-                String fileName = file.getName();
-                try(FileInputStream fileInputStream = new FileInputStream(PropertyReader.INPUT_DIRECTORY + "/" + fileName);
-                    FileOutputStream fileOutputStream = new FileOutputStream(PropertyReader.OUTPUT_DIRECTORY + "/" +fileName)){
-                    copy(fileInputStream, fileOutputStream);
-                } catch (IOException e){
-                    System.out.println(e);
-                }
-                file.delete();
-            }
     }
 
     private void start() {
