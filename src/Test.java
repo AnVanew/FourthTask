@@ -1,37 +1,36 @@
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.concurrent.*;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 
 public class Test {
 
     private void moveFilesFromDir()  {
+        System.out.println("Begin scan directory");
         try (Stream <Path> pathStream = Files.walk(PropertyReader.INPUT_DIRECTORY)) {
-            pathStream.filter(Files::isRegularFile).map(Path::toAbsolutePath).forEach(path -> {
-                try {
-                    moveFile(path);
-                }
-                catch (IOException e){
-                    e.printStackTrace();
-                }
-            });
+            pathStream.filter(Files::isRegularFile).map(Path::toAbsolutePath).forEach(this::moveFile);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        System.out.println("End scan directory");
     }
 
-    private void moveFile(Path file) throws IOException{
+    private void moveFile(Path file){
         Path fileName = file.getFileName();
+        System.out.println("File: " + fileName + " move from " + file.getParent());
         try(FileInputStream fileInputStream = new FileInputStream(file.toFile());
             FileOutputStream fileOutputStream = new FileOutputStream(PropertyReader.OUTPUT_DIRECTORY + "/" +fileName))
         {
             copy(fileInputStream, fileOutputStream);
+            fileInputStream.close();
+            Files.delete(file);
+        } catch (IOException e){
+            e.printStackTrace();
+            throw new RuntimeException();
         }
-        Files.delete(file);
+        System.out.println("File: " + fileName + " move to " + file.getParent());
     }
 
     private void copy(InputStream source, OutputStream target) throws IOException {
