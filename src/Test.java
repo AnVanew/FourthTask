@@ -4,34 +4,34 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 public class Test {
 
     private void moveFilesFromDir()  {
-        try {
-            List<Path> listOfFiles = Files.walk(PropertyReader.INPUT_DIRECTORY).filter(Files::isRegularFile).collect(Collectors.toList());
-            if (listOfFiles.size() != 0)
-                for (Path file : listOfFiles){
-                    copyAndDeleteFile(file);
+        try (Stream <Path> pathStream = Files.walk(PropertyReader.INPUT_DIRECTORY)) {
+            pathStream.filter(Files::isRegularFile).map(Path::toAbsolutePath).forEach(path -> {
+                try {
+                    moveFile(path);
                 }
+                catch (IOException e){
+                    e.printStackTrace();
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private void copyAndDeleteFile (Path file) throws IOException {
-        copyFile(file);
-        Files.delete(file);
-    }
-
-    private void copyFile(Path file) throws IOException{
+    private void moveFile(Path file) throws IOException{
         Path fileName = file.getFileName();
-        try(FileInputStream fileInputStream = new FileInputStream(PropertyReader.INPUT_DIRECTORY + "/" + fileName);
+        try(FileInputStream fileInputStream = new FileInputStream(file.toFile());
             FileOutputStream fileOutputStream = new FileOutputStream(PropertyReader.OUTPUT_DIRECTORY + "/" +fileName))
         {
             copy(fileInputStream, fileOutputStream);
         }
+        Files.delete(file);
     }
 
     private void copy(InputStream source, OutputStream target) throws IOException {
@@ -41,18 +41,14 @@ public class Test {
             target.write(buf, 0, length);
         }
     }
-    
+
     private void start() {
         ScheduledExecutorService s = Executors.newSingleThreadScheduledExecutor();
         s.scheduleAtFixedRate(this::moveFilesFromDir, PropertyReader.INITIAL_DELAY, PropertyReader.PERIOD, TimeUnit.SECONDS);
     }
 
-    public static void main(String[] args) {
-        try {
-            PropertyReader.loadProperties();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public static void main (String[] args) throws IOException {
+        PropertyReader.loadProperties();
         new Test().start();
     }
 }
