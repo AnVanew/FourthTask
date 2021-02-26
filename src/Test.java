@@ -19,9 +19,10 @@ public class Test {
 
     private void moveFile(Path file){
         Path fileName = file.getFileName();
+        Path destFile = PropertyReader.OUTPUT_DIRECTORY.resolve(file.getFileName()).toAbsolutePath();
         System.out.println("File: " + fileName + " move from " + file.getParent());
         try(FileInputStream fileInputStream = new FileInputStream(file.toFile());
-            FileOutputStream fileOutputStream = new FileOutputStream(PropertyReader.OUTPUT_DIRECTORY + "/" +fileName))
+            FileOutputStream fileOutputStream = new FileOutputStream(destFile.toFile()))
         {
             copy(fileInputStream, fileOutputStream);
             fileInputStream.close();
@@ -30,7 +31,7 @@ public class Test {
             e.printStackTrace();
             throw new RuntimeException();
         }
-        System.out.println("File: " + fileName + " move to " + file.getParent());
+        System.out.println("File: " + fileName + " move to " + destFile.getParent());
     }
 
     private void copy(InputStream source, OutputStream target) throws IOException {
