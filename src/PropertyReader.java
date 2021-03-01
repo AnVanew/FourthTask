@@ -11,6 +11,8 @@ public class PropertyReader {
     public static Path OUTPUT_DIRECTORY;
     public static int INITIAL_DELAY;
     public static int PERIOD;
+    public static int ACK_INPUT;
+    public static int ACK_OUTPUT;
 
     public static void loadProperties () throws IOException {
         Properties properties = new Properties();
@@ -21,6 +23,8 @@ public class PropertyReader {
             OUTPUT_DIRECTORY = Paths.get(properties.getProperty("OUTPUT_DIRECTORY"));
             INITIAL_DELAY = Integer.parseInt(properties.getProperty("INITIAL_DELAY"));
             PERIOD = Integer.parseInt(properties.getProperty("PERIOD"));
+            ACK_INPUT = Integer.parseInt(properties.getProperty("ACK_INPUT"));
+            ACK_OUTPUT = Integer.parseInt(properties.getProperty("ACK_OUTPUT"));
         }
     }
 

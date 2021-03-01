@@ -1,6 +1,7 @@
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.*;
 import java.util.stream.Stream;
 
@@ -9,8 +10,23 @@ public class Test {
 
     private void moveFilesFromDir()  {
         System.out.println("Begin scan directory");
-        try (Stream <Path> pathStream = Files.walk(PropertyReader.INPUT_DIRECTORY)) {
-            pathStream.filter(Files::isRegularFile).map(Path::toAbsolutePath).forEach(this::moveFile);
+        try (Stream <Path> pathStream = Files.walk(PropertyReader.INPUT_DIRECTORY)){
+            if (PropertyReader.ACK_INPUT == 1){
+               Stream<Path> pStream;
+               pStream = pathStream
+                        .filter(Files::isRegularFile)
+                        .filter(p -> p.toString().endsWith(".ack"))
+                        .map(Path::toAbsolutePath);
+               pStream = pStream.map(p -> p = (Paths.get(p.toString().replace(".ack", ""))));
+               pStream
+                        .forEach(this::moveFile);
+            }
+            else {
+                pathStream
+                        .filter(Files::isRegularFile)
+                        .map(Path::toAbsolutePath)
+                        .forEach(this::moveFile);
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
