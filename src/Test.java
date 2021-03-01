@@ -12,25 +12,35 @@ public class Test {
         System.out.println("Begin scan directory");
         try (Stream <Path> pathStream = Files.walk(PropertyReader.INPUT_DIRECTORY)){
             if (PropertyReader.ACK_INPUT == 1){
-               Stream<Path> pStream;
-               pStream = pathStream
-                        .filter(Files::isRegularFile)
+                getAbsPaths(pathStream)
                         .filter(p -> p.toString().endsWith(".ack"))
-                        .map(Path::toAbsolutePath);
-               pStream = pStream.map(p -> p = (Paths.get(p.toString().replace(".ack", ""))));
-               pStream
-                        .forEach(this::moveFile);
+                        .forEach(this::moveFileDeleteACK);
             }
             else {
-                pathStream
-                        .filter(Files::isRegularFile)
-                        .map(Path::toAbsolutePath)
+                getAbsPaths(pathStream)
                         .forEach(this::moveFile);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
         System.out.println("End scan directory");
+    }
+
+    private Stream <Path> getAbsPaths(Stream<Path> pathStream){
+        return pathStream
+                .filter(Files::isRegularFile)
+                .map(Path::toAbsolutePath);
+    }
+
+    private void moveFileDeleteACK(Path file){
+        try {
+            Files.delete(file);
+            file = Paths.get(file.toString().replace(".ack", ""));
+            moveFile(file);
+        }catch (IOException e){
+            System.out.println(e);
+            throw new RuntimeException();
+        }
     }
 
     private void moveFile(Path file){
@@ -41,6 +51,9 @@ public class Test {
             FileOutputStream fileOutputStream = new FileOutputStream(destFile.toFile()))
         {
             copy(fileInputStream, fileOutputStream);
+            if (PropertyReader.ACK_OUTPUT == 1) {
+                Files.createFile(PropertyReader.OUTPUT_DIRECTORY.resolve(file.getFileName() + ".ack").toAbsolutePath());
+            }
             fileInputStream.close();
             Files.delete(file);
         } catch (IOException e){
