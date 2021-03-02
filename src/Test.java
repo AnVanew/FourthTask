@@ -11,9 +11,9 @@ public class Test {
     private void moveFilesFromDir()  {
         System.out.println("Begin scan directory");
         try (Stream <Path> pathStream = Files.walk(PropertyReader.INPUT_DIRECTORY)){
-            if (PropertyReader.ACK_INPUT == 1){
+            if (!PropertyReader.ACK_OUTPUT.equals("")){
                 getAbsPaths(pathStream)
-                        .filter(p -> p.toString().endsWith(".ack"))
+                        .filter(p -> p.toString().endsWith(PropertyReader.ACK_INPUT))
                         .forEach(this::moveFileDeleteACK);
             }
             else {
@@ -35,7 +35,7 @@ public class Test {
     private void moveFileDeleteACK(Path file){
         try {
             Files.delete(file);
-            file = Paths.get(file.toString().replace(".ack", ""));
+            file = Paths.get(file.toString().replace(PropertyReader.ACK_INPUT, ""));
             moveFile(file);
         }catch (IOException e){
             System.out.println(e);
@@ -52,8 +52,8 @@ public class Test {
             FileOutputStream fileOutputStream = new FileOutputStream(destFile.toFile()))
         {
             copy(fileInputStream, fileOutputStream);
-            if (PropertyReader.ACK_OUTPUT == 1) {
-                Files.createFile(PropertyReader.OUTPUT_DIRECTORY.resolve(file.getFileName() + ".ack").toAbsolutePath());
+            if (!PropertyReader.ACK_OUTPUT.equals("")) {
+                Files.createFile(PropertyReader.OUTPUT_DIRECTORY.resolve(file.getFileName() + PropertyReader.ACK_OUTPUT).toAbsolutePath());
             }
             fileInputStream.close();
             Files.delete(file);
