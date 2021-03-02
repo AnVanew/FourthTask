@@ -41,12 +41,13 @@ public class Test {
             System.out.println(e);
             throw new RuntimeException();
         }
+
     }
 
     private void moveFile(Path file){
         Path fileName = file.getFileName();
         Path destFile = PropertyReader.OUTPUT_DIRECTORY.resolve(file.getFileName()).toAbsolutePath();
-        System.out.println("File: " + fileName + " move from " + file.getParent());
+        System.out.println("Trying to move file: " + fileName + " from " + file.getParent());
         try(FileInputStream fileInputStream = new FileInputStream(file.toFile());
             FileOutputStream fileOutputStream = new FileOutputStream(destFile.toFile()))
         {
@@ -56,6 +57,9 @@ public class Test {
             }
             fileInputStream.close();
             Files.delete(file);
+        } catch (FileNotFoundException e ){
+            System.out.println("File " + fileName + " not found");
+            return;
         } catch (IOException e){
             e.printStackTrace();
             throw new RuntimeException();
