@@ -11,7 +11,7 @@ public class Test {
     private void moveFilesFromDir()  {
         System.out.println("Begin scan directory");
         try (Stream <Path> pathStream = Files.walk(PropertyReader.INPUT_DIRECTORY)){
-            if (!PropertyReader.ACK_OUTPUT.equals("")){
+            if (!PropertyReader.ACK_INPUT.isEmpty()){
                 getAbsPaths(pathStream)
                         .filter(p -> p.toString().endsWith(PropertyReader.ACK_INPUT))
                         .forEach(this::moveFileDeleteACK);
@@ -52,7 +52,7 @@ public class Test {
             FileOutputStream fileOutputStream = new FileOutputStream(destFile.toFile()))
         {
             copy(fileInputStream, fileOutputStream);
-            if (!PropertyReader.ACK_OUTPUT.equals("")) {
+            if (!PropertyReader.ACK_OUTPUT.isEmpty()) {
                 Files.createFile(PropertyReader.OUTPUT_DIRECTORY.resolve(file.getFileName() + PropertyReader.ACK_OUTPUT).toAbsolutePath());
             }
             fileInputStream.close();
